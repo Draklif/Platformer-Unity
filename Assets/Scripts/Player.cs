@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask whatIsJumpable;
 
     [Header("Salto múltiple")]
-    [SerializeField] private int maxSaltos = 2;
+    [SerializeField] public int maxSaltos = 0;
     private int saltosRestantes;
 
     [Header("Combate")]
@@ -36,6 +36,10 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private float inputH;
     private Animator anim;
+
+    public bool fUnlockAltAttack;
+    public bool fUnlockSpecialAttack;
+    public bool fUnlockDash;
 
     void Start()
     {
@@ -67,7 +71,7 @@ public class Player : MonoBehaviour
 
     private void LanzarAtaqueBolaFuego()
     {
-        if (Input.GetMouseButtonDown(1) && !isSpecialAttacking)
+        if (Input.GetMouseButtonDown(1) && !isSpecialAttacking && fUnlockAltAttack)
         {
             anim.SetTrigger("attack_fire");
         }
@@ -75,7 +79,7 @@ public class Player : MonoBehaviour
 
     private void LanzarAtaqueEspecial()
     {
-        if (Input.GetKeyDown(KeyCode.F) && !isSpecialAttacking)
+        if (Input.GetKeyDown(KeyCode.F) && !isSpecialAttacking && fUnlockSpecialAttack)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             anim.SetTrigger("attack_special");
@@ -168,7 +172,7 @@ public class Player : MonoBehaviour
 
     private void Dash()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDashing && !isSpecialAttacking)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isDashing && !isSpecialAttacking && fUnlockDash)
         {
             StartCoroutine(PerformDash());
         }
