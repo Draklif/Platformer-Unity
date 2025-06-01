@@ -7,6 +7,7 @@ public class PatrolEnemy: MonoBehaviour
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float velocidad;
     [SerializeField] private float waitTime;
+    [SerializeField] bool chaseAfterSpotting = false;
 
     [Header("Combate")]
     [SerializeField] private bool hasAttack;
@@ -14,7 +15,9 @@ public class PatrolEnemy: MonoBehaviour
     [SerializeField] private GameObject attackObject;
     [SerializeField] private float attackDamage;
     [SerializeField] private float attackWaitTime;
+    [SerializeField] private bool isAggro = false;
 
+    private Transform playerTarget;
     private Vector3 destinoActual;
     private int indice = 0;
     private Animator anim;
@@ -29,22 +32,39 @@ public class PatrolEnemy: MonoBehaviour
 
     void Update()
     {
-        
+        if (chaseAfterSpotting && isAggro && playerTarget != null)
+        {
+            destinoActual = playerTarget.position;
+
+            transform.localScale = destinoActual.x > transform.position.x ? Vector3.one : new Vector3(-1, 1, 1);
+
+            transform.position = Vector3.MoveTowards(transform.position, destinoActual, velocidad * Time.deltaTime);
+        }
     }
+
 
     IEnumerator Patrulla()
     {
-        while (waypoints.Length > 0) 
+        while (waypoints.Length > 0)
         {
             while (transform.position != destinoActual)
             {
                 transform.position = Vector3.MoveTowards(transform.position, destinoActual, velocidad * Time.deltaTime);
                 yield return null;
             }
-            DefinirNuevoDestino();
-            yield return new WaitForSeconds(waitTime);
+
+            if (!isAggro)
+            {
+                DefinirNuevoDestino();
+                yield return new WaitForSeconds(waitTime);
+            }
+            else
+            {
+                yield return null;
+            }
         }
     }
+
     IEnumerator RutinaAtaque()
     {
         while (true)
@@ -55,10 +75,15 @@ public class PatrolEnemy: MonoBehaviour
     }
 
     // Launched from anim event
-    private void Atacar()
+    private void AtacarBolaFuego()
     {
-        Instantiate(attackObject, attackPoint.position, transform.rotation);
+        GameObject fireball = Instantiate(attackObject, attackPoint.position, Quaternion.identity);
+
+        float direccion = transform.localScale.x >= 0 ? 1 : -1;
+        fireball.GetComponent<FireBall>().Disparar(direccion);
+        fireball.GetComponent<FireBall>().attackDamage = attackDamage;
     }
+
 
     private void DefinirNuevoDestino()
     {
@@ -71,7 +96,10 @@ public class PatrolEnemy: MonoBehaviour
     {
         if (collision.gameObject.CompareTag("PlayerDetection"))
         {
-            Debug.Log("Detectado");
+            isAggro = true;
+            Transform player = collision.transform;
+            playerTarget = collision.transform;
+            transform.localScale = playerTarget.position.x > transform.position.x ? Vector3.one : new Vector3(-1, 1, 1);
         }
         else if (collision.gameObject.CompareTag("PlayerHitbox")) 
         {
