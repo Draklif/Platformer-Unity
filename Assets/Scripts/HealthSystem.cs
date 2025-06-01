@@ -6,6 +6,8 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] private float health;
     [SerializeField] private float flashDuration = 0.2f;
     private SpriteRenderer spriteRenderer;
+    private PauseMenu pauseMenu;
+    private Player playerRef;
     private Color originalColor;
     private Coroutine flashCoroutine;
     public bool isInvulnerable = false;
@@ -17,6 +19,11 @@ public class HealthSystem : MonoBehaviour
         {
             originalColor = spriteRenderer.color;
         }
+    }
+
+    private void Start()
+    {
+        playerRef = gameObject.GetComponent<Player>();
     }
 
     public void ReceiveDamage(float damage)
@@ -35,6 +42,11 @@ public class HealthSystem : MonoBehaviour
 
         if (health <= 0)
         {
+            if (playerRef != null)
+            {
+                pauseMenu = GameObject.FindGameObjectWithTag("UI").GetComponent<PauseMenu>();
+                pauseMenu.GameOver();
+            }
             Destroy(gameObject);
         }
     }
