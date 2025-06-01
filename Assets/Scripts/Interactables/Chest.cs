@@ -11,15 +11,15 @@ public class Chest : MonoBehaviour, IInteractable
     void Start()
     {
         anim = GetComponent<Animator>();
-        anim.speed = 0f; // Reanuda la animación
+        anim.speed = 0f;
     }
 
     public void Interact()
     {
         if (!abierto)
         {
-            anim.speed = 1f; // Reanuda la animación
-            anim.Play("ChestOpen", 0, 0f); // Reproduce desde el inicio si hace falta
+            anim.speed = 1f;
+            anim.Play("ChestOpen", 0, 0f);
             Debug.Log("¡Cofre abierto!");
             abierto = true;
             Destroy(gameObject.GetComponent<ObjectInfo>().text);
